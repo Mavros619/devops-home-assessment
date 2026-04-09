@@ -2,12 +2,16 @@
 
 resource "aws_s3_bucket" "static_site" {
     bucket = var.bucket_name
-    acl = "public-read"
+}
+
+resource "aws_s3_bucket_acl" "static_site_acl" {
+    bucket = aws_s3_bucket.static_site.id
+    acl    = "public-read"
 }
 
 resource "aws_cloudfront_distribution" "cdn" {
     origin {
-        domain_name = aws_s3_bucket.static.bucket_regional_domain_name
+        domain_name = aws_s3_bucket.static_site.bucket_regional_domain_name
         origin_id = "S3Origin"
     }
     default_cache_behavior {
