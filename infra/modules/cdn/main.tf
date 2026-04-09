@@ -1,5 +1,11 @@
 # infra/modules/cdn/main.tf — CONTAINS BUGS. Fix before extending.
 
+provider "aws" {
+  region = "us-east-1"
+  access_key = "my-access-key"
+  secret_key = "my-secret-key"
+}
+
 resource "aws_s3_bucket" "static_site" {
     bucket = var.bucket_name
 }
