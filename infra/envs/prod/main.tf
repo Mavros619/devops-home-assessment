@@ -33,6 +33,18 @@ module "ecs" {
   subnets               = ["subnet-12345678", "subnet-876543"]
 }
 
+module "iam" {
+  source = "../../modules/iam"
+  name   = "prod-github-deploy-role"
+  github_subjects = ["repo:Mavros619/devops-home-assessment:environment:prod"]
+  ecr_repository_arn      = module.repo.ecr_repository_arn
+  ecs_cluster_arn         = module.ecs.cluster_arn
+  ecs_service_arn         = module.ecs.service_arn
+  task_execution_role_arn = module.ecs.task_execution_role_arn
+  task_role_arn           = module.ecs.task_role_arn
+  env                     = "prod"
+}
+
 module "waf" {
   source      = "../../modules/waf"
   name        = "prod-cdn-waf"

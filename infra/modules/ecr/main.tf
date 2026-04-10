@@ -25,9 +25,9 @@ resource "aws_ecr_lifecycle_policy" "cleanup_policy" {
         rulePriority = 1
         description  = "Keep last ${var.days_keep} images"
         selection = {
-          tagStatus     = var.tag_status
-          countType     = "imageCountMoreThan"
-          countNumber   = var.days_keep
+          tagStatus   = var.tag_status
+          countType   = "imageCountMoreThan"
+          countNumber = var.days_keep
         }
         action = {
           type = "expire"

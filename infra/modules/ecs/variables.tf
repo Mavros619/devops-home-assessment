@@ -3,31 +3,31 @@ variable "cluster_name" {
 }
 
 variable "container_name" {
-  type    = string
+  type = string
 }
 
 variable "container_image" {
-  type    = string
+  type = string
 }
 
 variable "container_port" {
-  type    = number
+  type = number
 }
 
 variable "desired_count" {
-  type    = number
+  type = number
 }
 
 variable "cpu" {
-  type    = string
+  type = string
 }
 
 variable "memory" {
-  type    = string
+  type = string
 }
 
 variable "subnets" {
-  type    = list(string)
+  type = list(string)
 }
 
 variable "alb_target_group_arn" {
@@ -39,9 +39,14 @@ variable "alb_security_group_id" {
 }
 
 variable "assign_public_ip" {
-  type    = bool
+  type = bool
+}
+
+variable "task_role_policy_arns" {
+  type    = list(string)
+  default = []
 }
 
 variable "env" {
-  type    = string
+  type = string
 }

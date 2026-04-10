@@ -72,9 +72,37 @@ resource "aws_iam_role" "task_execution" {
   }
 }
 
+resource "aws_iam_role" "task_role" {
+  name = "${var.cluster_name}-task"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Principal = {
+          Service = "ecs-tasks.amazonaws.com"
+        }
+        Action = "sts:AssumeRole"
+      }
+    ]
+  })
+
+  tags = {
+    Environment = "${var.env}"
+    ManagedBy   = "terraform"
+  }
+}
+
 resource "aws_iam_role_policy_attachment" "task_execution_policy" {
   role       = aws_iam_role.task_execution.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
+}
+
+resource "aws_iam_role_policy_attachment" "task_role_policies" {
+  for_each   = toset(var.task_role_policy_arns)
+  role       = aws_iam_role.task_role.name
+  policy_arn = each.value
 }
 
 resource "aws_cloudwatch_log_group" "ecs" {
@@ -93,6 +121,7 @@ resource "aws_ecs_task_definition" "this" {
   cpu                      = var.cpu
   memory                   = var.memory
   execution_role_arn       = aws_iam_role.task_execution.arn
+  task_role_arn            = aws_iam_role.task_role.arn
 
   container_definitions = jsonencode([
     {

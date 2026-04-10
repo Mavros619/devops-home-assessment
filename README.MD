@@ -1,3 +1,9 @@
+# Key Decisions
+
+## Part 2
+
+- I chose to use ECS Fargate instead of EC2 because even though EC2 is cheaper, if a sudden spike hits, you have to wait for a new EC2 instance to boot, join the cluster and then start the container. In Faragate, you don't have to provision, configure or scale clusters of virtual machines to run containers making it ideal for production use.
+
 # Part 1
 Screenshot after first running `terraform plan`
 
