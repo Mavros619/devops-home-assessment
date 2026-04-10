@@ -14,6 +14,7 @@ Also fixed the warning of the argument `acl` which is deprecated and replaced it
 ![alt text](images/2nd-tf-plan.png)
 
 The provider block was missing and terraform didn't know what plugin to download.
+
 I added the below code to fix it:
 
 ```hcl
@@ -21,5 +22,28 @@ provider "aws" {
   region = "us-east-1"
   access_key = "my-access-key"
   secret_key = "my-secret-key"
+}
+```
+
+## Bug 3
+The security issue with Trivy that will flag is that `acl` was set to `public-read`.
+
+I added `aws_s3_bucket_ownership_controls` block so we can control the ownership of objects uploaded to the bucket.
+
+Then I set the `acl` to `private`
+
+```hcl
+resource "aws_s3_bucket_ownership_controls" "static_site_ownership" {
+    bucket = aws_s3_bucket.static_site.id
+    rule {
+        object_ownership = "BucketOwnerPreferred"
+    }
+}
+
+resource "aws_s3_bucket_acl" "static_site_acl" {
+    depends_on = [ aws_s3_bucket_ownership_controls.static_site_ownership ]
+
+    bucket = aws_s3_bucket.static_site.id
+    acl    = "private"
 }
 ```

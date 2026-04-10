@@ -10,9 +10,18 @@ resource "aws_s3_bucket" "static_site" {
     bucket = var.bucket_name
 }
 
-resource "aws_s3_bucket_acl" "static_site_acl" {
+resource "aws_s3_bucket_ownership_controls" "static_site_ownership" {
     bucket = aws_s3_bucket.static_site.id
-    acl    = "public-read"
+    rule {
+        object_ownership = "BucketOwnerPreferred"
+    }
+}
+
+resource "aws_s3_bucket_acl" "static_site_acl" {
+    depends_on = [ aws_s3_bucket_ownership_controls.static_site_ownership ]
+
+    bucket = aws_s3_bucket.static_site.id
+    acl    = "private"
 }
 
 resource "aws_cloudfront_distribution" "cdn" {
