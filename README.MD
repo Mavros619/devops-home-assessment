@@ -59,11 +59,11 @@ I replaced `aws_cloudfront_origin_access_identity` with `aws_cloudfront_origin_a
 
 ```hcl
 resource "aws_cloudfront_origin_access_control" "cdn_oac" {
-  name             = "cdn-oac"
-  description      = "OAC for static site CloudFront distribution"
-  origin_type      = "s3"
-  signing_protocol = "sigv4"
-  signing_behavior = "always"
+  name                              = "cdn-oac"
+  description                       = "OAC for S3 static site"
+  origin_access_control_origin_type = "s3"
+  signing_protocol                  = "sigv4"
+  signing_behavior                  = "always"
 }
 
 resource "aws_s3_bucket_policy" "static_site_policy" {
