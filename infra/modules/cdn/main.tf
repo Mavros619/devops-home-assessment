@@ -24,8 +24,12 @@ resource "aws_s3_bucket_acl" "static_site_acl" {
   acl    = "private"
 }
 
-resource "aws_cloudfront_origin_access_identity" "cdn_oai" {
-  comment = "OAI for static site CloudFront distribution"
+resource "aws_cloudfront_origin_access_control" "cdn_oac" {
+  name                              = "cdn-oac"
+  description                       = "OAC for S3 static site"
+  origin_access_control_origin_type = "s3"
+  signing_protocol                  = "sigv4"
+  signing_behavior                  = "always"
 }
 
 resource "aws_s3_bucket_policy" "static_site_policy" {
@@ -38,7 +42,7 @@ resource "aws_s3_bucket_policy" "static_site_policy" {
         Sid    = "AllowCloudFrontServicePrincipalReadOnly"
         Effect = "Allow"
         Principal = {
-          CanonicalUser = aws_cloudfront_origin_access_identity.cdn_oai.s3_canonical_user_id
+          Service = "cloudfront.amazonaws.com"
         }
         Action = [
           "s3:GetObject"
@@ -52,12 +56,9 @@ resource "aws_s3_bucket_policy" "static_site_policy" {
 resource "aws_cloudfront_distribution" "cdn" {
   default_root_object = "index.html"
   origin {
-    domain_name = aws_s3_bucket.static_site.bucket_regional_domain_name
-    origin_id   = "S3Origin"
-
-    s3_origin_config {
-      origin_access_identity = aws_cloudfront_origin_access_identity.cdn_oai.cloudfront_access_identity_path
-    }
+    domain_name              = aws_s3_bucket.static_site.bucket_regional_domain_name
+    origin_id                = "S3Origin"
+    origin_access_control_id = aws_cloudfront_origin_access_control.cdn_oac.id
   }
   default_cache_behavior {
     allowed_methods        = ["GET", "HEAD"]

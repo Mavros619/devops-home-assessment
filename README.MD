@@ -53,13 +53,17 @@ resource "aws_s3_bucket_acl" "static_site_acl" {
 
 ## Bug 4
 
-The CloudFront distribution was configured with an S3 origin but without `s3_origin_config` and an Origin Access Identity, which is required for a private S3 bucket origin.
+The CloudFront distribution was configured with an S3 origin but without `s3_origin_config` and an Origin Access Control, which is required for a private S3 bucket origin using SigV4.
 
-I added an `aws_cloudfront_origin_access_identity` resource and updated `aws_cloudfront_distribution.cdn` to use `s3_origin_config` with `origin_access_identity`. I also added an `aws_s3_bucket_policy` to allow CloudFront read access to `aws_s3_bucket.static_site`.
+I replaced `aws_cloudfront_origin_access_identity` with `aws_cloudfront_origin_access_control`, updated `aws_cloudfront_distribution.cdn` to use `origin_access_control_id`, and kept the bucket private with a policy allowing the CloudFront service principal to read objects from `aws_s3_bucket.static_site`.
 
 ```hcl
-resource "aws_cloudfront_origin_access_identity" "cdn_oai" {
-  comment = "OAI for static site CloudFront distribution"
+resource "aws_cloudfront_origin_access_control" "cdn_oac" {
+  name             = "cdn-oac"
+  description      = "OAC for static site CloudFront distribution"
+  origin_type      = "s3"
+  signing_protocol = "sigv4"
+  signing_behavior = "always"
 }
 
 resource "aws_s3_bucket_policy" "static_site_policy" {
@@ -72,7 +76,7 @@ resource "aws_s3_bucket_policy" "static_site_policy" {
         Sid    = "AllowCloudFrontServicePrincipalReadOnly"
         Effect = "Allow"
         Principal = {
-          CanonicalUser = aws_cloudfront_origin_access_identity.cdn_oai.s3_canonical_user_id
+          Service = "cloudfront.amazonaws.com"
         }
         Action = [
           "s3:GetObject"
