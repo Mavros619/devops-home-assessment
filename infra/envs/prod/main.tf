@@ -11,6 +11,28 @@ module "repo" {
   tag_status = "any"
 }
 
+module "alb" {
+  source = "../../modules/alb"
+  name   = "prod-alb"
+  env    = "prod"
+}
+
+module "ecs" {
+  source                = "../../modules/ecs"
+  cluster_name          = "prod-ecs"
+  container_name        = "app"
+  container_image       = "amazon/amazon-ecs-sample"
+  container_port        = 80
+  desired_count         = 4
+  alb_target_group_arn  = module.alb.target_group_arn
+  alb_security_group_id = module.alb.security_group_id
+  env                   = "prod"
+  cpu                   = "256"
+  memory                = "512"
+  assign_public_ip      = true
+  subnets               = ["subnet-12345678", "subnet-876543"]
+}
+
 module "waf" {
   source      = "../../modules/waf"
   name        = "prod-cdn-waf"
