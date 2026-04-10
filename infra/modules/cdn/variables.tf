@@ -7,13 +7,17 @@ variable "env" {
 }
 
 variable "oac_name" {
-  type    = string
+  type = string
 }
 
 variable "oac_description" {
-  type    = string
+  type = string
 }
 
 variable "default_root_object" {
+  type = string
+}
+
+variable "web_acl_id" {
   type    = string
 }

@@ -57,6 +57,7 @@ resource "aws_cloudfront_distribution" "cdn" {
     origin_id                = "S3Origin"
     origin_access_control_id = aws_cloudfront_origin_access_control.cdn_oac.id
   }
+  web_acl_id = var.web_acl_id
   default_cache_behavior {
     allowed_methods        = ["GET", "HEAD"]
     cached_methods         = ["GET", "HEAD"]
