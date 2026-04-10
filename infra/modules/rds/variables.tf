@@ -29,7 +29,7 @@ variable "db_allocated_storage" {
 }
 
 variable "db_multi_az" {
-  description = "Specifies if the RDS instance is multi-AZ (Required for High Availability in Prod)"
+  description = "Specifies if the RDS instance is multi-AZ"
   type        = bool
   default     = true
 }
