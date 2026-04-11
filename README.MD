@@ -1,8 +1,6 @@
 # Key Decisions
 
-## Part 2
 
-- I chose to use ECS Fargate instead of EC2 because even though EC2 is cheaper, if a sudden spike hits, you have to wait for a new EC2 instance to boot, join the cluster and then start the container. In Faragate, you don't have to provision, configure or scale clusters of virtual machines to run containers making it ideal for production use.
 
 # Part 1
 Screenshot after first running `terraform plan`
@@ -93,3 +91,115 @@ resource "aws_s3_bucket_policy" "static_site_policy" {
   })
 }
 ```
+
+## Part 2
+
+### EC2 vs ECS Fargate
+
+I chose to use ECS Fargate instead of EC2 because even though EC2 is cheaper, if a sudden spike hits, you have to wait for a new EC2 instance to boot, join the cluster and then start the container. In Faragate, you don't have to provision, configure or scale clusters of virtual machines to run containers making it ideal for production use.
+
+### Isolation approach
+
+For this implementation, I would use a seperate AWS account because it has a hard boundary for security, billing and api quottas.
+
+- A breach in staging is physically locked out of Production
+- Easier billing as is seperated by the account
+- A bug in staging can hit AWS rate limits and take down Production. With seperate accounts you avoid this.
+
+The tradoff is the lower initial setup with isolated VPC. Also there is a network layer protection because resources of one VPC cannot communicate with resources of another VPC.
+
+### Reduced task sizing for ECS Fargate
+
+I reduced the below values:
+
+- `desired_count` from 4 to 2. **Lowest value should be 2 to test rolling updates**
+- `cpu` from 512 to 256. **Reduced cpu because in production we always add more to guarantee stability**
+- `memory` from 1024 to 512. **Reduced memory because in production we always add more to guarantee stability**
+
+### WAF not required in staging
+
+You don't need WAF in staging because it reduces the complexity for internal testing as WAFs are nottoriouus for "False Positives". For example, it might block a developers's legitimate API call or a manual QA test because the payload looks "suspicious". Also is more cost efficient if you remove WAF in staging bringing the cost down.
+
+The risk that carries is that you might write a code that works in staging but gets blocked by WAF in prodution.
+
+### Terraform Commands
+
+- Production
+
+**terraform init**
+
+```
+Initializing the backend...
+Initializing modules...
+- alb in ../../modules/alb
+- cdn in ../../modules/cdn
+- ecs in ../../modules/ecs
+- iam in ../../modules/iam
+- repo in ../../modules/ecr
+- waf in ../../modules/waf
+Initializing provider plugins...
+- Finding latest version of hashicorp/aws...
+- Finding latest version of hashicorp/tls...
+- Installing hashicorp/aws v6.40.0...
+- Installed hashicorp/aws v6.40.0 (signed by HashiCorp)
+- Installing hashicorp/tls v4.2.1...
+- Installed hashicorp/tls v4.2.1 (signed by HashiCorp)
+Terraform has created a lock file .terraform.lock.hcl to record the provider
+selections it made above. Include this file in your version control repository
+so that Terraform can guarantee to make the same selections by default when
+you run "terraform init" in the future.
+
+Terraform has been successfully initialized!
+
+You may now begin working with Terraform. Try running "terraform plan" to see
+any changes that are required for your infrastructure. All Terraform commands
+should now work.
+
+If you ever set or change modules or backend configuration for Terraform,
+rerun this command to reinitialize your working directory. If you forget, other
+commands will detect it and remind you to do so if necessary.
+```
+
+**terraform plan**
+
+Output saved in part2/tf-plan-prod.txt
+
+- Staging
+
+**terraform init**
+
+```
+Initializing the backend...
+Initializing modules...
+- alb in ../../modules/alb
+- cdn in ../../modules/cdn
+- ecs in ../../modules/ecs
+- iam in ../../modules/iam
+- repo in ../../modules/ecr
+Initializing provider plugins...
+- Finding latest version of hashicorp/aws...
+- Finding latest version of hashicorp/tls...
+- Installing hashicorp/aws v6.40.0...
+- Installed hashicorp/aws v6.40.0 (signed by HashiCorp)
+- Installing hashicorp/tls v4.2.1...
+- Installed hashicorp/tls v4.2.1 (signed by HashiCorp)
+Terraform has created a lock file .terraform.lock.hcl to record the provider
+selections it made above. Include this file in your version control repository
+so that Terraform can guarantee to make the same selections by default when
+you run "terraform init" in the future.
+
+Terraform has been successfully initialized!
+
+You may now begin working with Terraform. Try running "terraform plan" to see
+any changes that are required for your infrastructure. All Terraform commands
+should now work.
+
+If you ever set or change modules or backend configuration for Terraform,
+rerun this command to reinitialize your working directory. If you forget, other
+commands will detect it and remind you to do so if necessary.
+```
+
+**terraform plan**
+
+Output saved in part2/tf-plan-staging.txt
+

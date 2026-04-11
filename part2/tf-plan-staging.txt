@@ -1,0 +1,881 @@
+module.iam.data.tls_certificate.github: Reading...
+module.iam.data.tls_certificate.github: Read complete after 1s [id=d54ffc5863e92be116e7b1bebdacdafbdb976744]
+module.ecs.data.aws_vpc.default: Reading...
+module.alb.data.aws_vpc.default: Reading...
+module.ecs.data.aws_region.current: Reading...
+module.ecs.data.aws_region.current: Read complete after 0s [id=us-east-1]
+module.alb.data.aws_vpc.default: Read complete after 2s [id=vpc-01d9d81b6fb487c81]
+module.alb.data.aws_subnets.default: Reading...
+module.ecs.data.aws_vpc.default: Read complete after 2s [id=vpc-01d9d81b6fb487c81]
+module.ecs.data.aws_subnets.default: Reading...
+module.ecs.data.aws_subnets.default: Read complete after 0s [id=us-east-1]
+module.alb.data.aws_subnets.default: Read complete after 0s [id=us-east-1]
+
+Terraform used the selected providers to generate the following execution
+plan. Resource actions are indicated with the following symbols:
+  + create
+ <= read (data resources)
+
+Terraform will perform the following actions:
+
+  # module.alb.aws_lb.this will be created
+  + resource "aws_lb" "this" {
+      + arn                                                          = (known after apply)
+      + arn_suffix                                                   = (known after apply)
+      + client_keep_alive                                            = 3600
+      + desync_mitigation_mode                                       = "defensive"
+      + dns_name                                                     = (known after apply)
+      + drop_invalid_header_fields                                   = false
+      + enable_deletion_protection                                   = false
+      + enable_http2                                                 = true
+      + enable_tls_version_and_cipher_suite_headers                  = false
+      + enable_waf_fail_open                                         = false
+      + enable_xff_client_port                                       = false
+      + enable_zonal_shift                                           = false
+      + enforce_security_group_inbound_rules_on_private_link_traffic = (known after apply)
+      + id                                                           = (known after apply)
+      + idle_timeout                                                 = 60
+      + internal                                                     = false
+      + ip_address_type                                              = (known after apply)
+      + load_balancer_type                                           = "application"
+      + name                                                         = "staging-alb"
+      + name_prefix                                                  = (known after apply)
+      + preserve_host_header                                         = false
+      + region                                                       = "us-east-1"
+      + secondary_ips_auto_assigned_per_subnet                       = (known after apply)
+      + security_groups                                              = (known after apply)
+      + subnets                                                      = [
+          + "subnet-03b3b3f5aeb6dac50",
+          + "subnet-03c4cfdbfefdad4f1",
+          + "subnet-055e4d8affde44c44",
+          + "subnet-0bc6a0502e319ed57",
+          + "subnet-0e8f9caae5327397f",
+          + "subnet-0f98f3bb8e7c5013b",
+        ]
+      + tags                                                         = {
+          + "Environment" = "staging"
+          + "ManagedBy"   = "terraform"
+        }
+      + tags_all                                                     = {
+          + "Environment" = "staging"
+          + "ManagedBy"   = "terraform"
+        }
+      + vpc_id                                                       = (known after apply)
+      + xff_header_processing_mode                                   = "append"
+      + zone_id                                                      = (known after apply)
+
+      + subnet_mapping (known after apply)
+    }
+
+  # module.alb.aws_lb_listener.http will be created
+  + resource "aws_lb_listener" "http" {
+      + arn                                                                   = (known after apply)
+      + id                                                                    = (known after apply)
+      + load_balancer_arn                                                     = (known after apply)
+      + port                                                                  = 80
+      + protocol                                                              = "HTTP"
+      + region                                                                = "us-east-1"
+      + routing_http_request_x_amzn_mtls_clientcert_header_name               = (known after apply)
+      + routing_http_request_x_amzn_mtls_clientcert_issuer_header_name        = (known after apply)
+      + routing_http_request_x_amzn_mtls_clientcert_leaf_header_name          = (known after apply)
+      + routing_http_request_x_amzn_mtls_clientcert_serial_number_header_name = (known after apply)
+      + routing_http_request_x_amzn_mtls_clientcert_subject_header_name       = (known after apply)
+      + routing_http_request_x_amzn_mtls_clientcert_validity_header_name      = (known after apply)
+      + routing_http_request_x_amzn_tls_cipher_suite_header_name              = (known after apply)
+      + routing_http_request_x_amzn_tls_version_header_name                   = (known after apply)
+      + routing_http_response_access_control_allow_credentials_header_value   = (known after apply)
+      + routing_http_response_access_control_allow_headers_header_value       = (known after apply)
+      + routing_http_response_access_control_allow_methods_header_value       = (known after apply)
+      + routing_http_response_access_control_allow_origin_header_value        = (known after apply)
+      + routing_http_response_access_control_expose_headers_header_value      = (known after apply)
+      + routing_http_response_access_control_max_age_header_value             = (known after apply)
+      + routing_http_response_content_security_policy_header_value            = (known after apply)
+      + routing_http_response_server_enabled                                  = (known after apply)
+      + routing_http_response_strict_transport_security_header_value          = (known after apply)
+      + routing_http_response_x_content_type_options_header_value             = (known after apply)
+      + routing_http_response_x_frame_options_header_value                    = (known after apply)
+      + ssl_policy                                                            = (known after apply)
+      + tags_all                                                              = (known after apply)
+      + tcp_idle_timeout_seconds                                              = (known after apply)
+
+      + default_action {
+          + order            = (known after apply)
+          + target_group_arn = (known after apply)
+          + type             = "forward"
+        }
+
+      + mutual_authentication (known after apply)
+    }
+
+  # module.alb.aws_lb_target_group.this will be created
+  + resource "aws_lb_target_group" "this" {
+      + arn                                = (known after apply)
+      + arn_suffix                         = (known after apply)
+      + connection_termination             = (known after apply)
+      + deregistration_delay               = "300"
+      + id                                 = (known after apply)
+      + ip_address_type                    = (known after apply)
+      + lambda_multi_value_headers_enabled = false
+      + load_balancer_arns                 = (known after apply)
+      + load_balancing_algorithm_type      = (known after apply)
+      + load_balancing_anomaly_mitigation  = (known after apply)
+      + load_balancing_cross_zone_enabled  = (known after apply)
+      + name                               = "staging-alb-tg"
+      + name_prefix                        = (known after apply)
+      + port                               = 80
+      + preserve_client_ip                 = (known after apply)
+      + protocol                           = "HTTP"
+      + protocol_version                   = (known after apply)
+      + proxy_protocol_v2                  = false
+      + region                             = "us-east-1"
+      + slow_start                         = 0
+      + tags                               = {
+          + "Environment" = "staging"
+          + "ManagedBy"   = "terraform"
+        }
+      + tags_all                           = {
+          + "Environment" = "staging"
+          + "ManagedBy"   = "terraform"
+        }
+      + target_type                        = "instance"
+      + vpc_id                             = "vpc-01d9d81b6fb487c81"
+
+      + health_check {
+          + enabled             = true
+          + healthy_threshold   = 2
+          + interval            = 30
+          + matcher             = "200-399"
+          + path                = "/"
+          + port                = "traffic-port"
+          + protocol            = "HTTP"
+          + timeout             = 5
+          + unhealthy_threshold = 2
+        }
+
+      + stickiness (known after apply)
+
+      + target_failover (known after apply)
+
+      + target_group_health (known after apply)
+
+      + target_health_state (known after apply)
+    }
+
+  # module.alb.aws_security_group.alb will be created
+  + resource "aws_security_group" "alb" {
+      + arn                    = (known after apply)
+      + description            = "Security group for ALB"
+      + egress                 = [
+          + {
+              + cidr_blocks      = [
+                  + "0.0.0.0/0",
+                ]
+              + from_port        = 0
+              + ipv6_cidr_blocks = []
+              + prefix_list_ids  = []
+              + protocol         = "-1"
+              + security_groups  = []
+              + self             = false
+              + to_port          = 0
+                # (1 unchanged attribute hidden)
+            },
+        ]
+      + id                     = (known after apply)
+      + ingress                = [
+          + {
+              + cidr_blocks      = [
+                  + "0.0.0.0/0",
+                ]
+              + description      = "Allow HTTP"
+              + from_port        = 80
+              + ipv6_cidr_blocks = [
+                  + "::/0",
+                ]
+              + prefix_list_ids  = []
+              + protocol         = "tcp"
+              + security_groups  = []
+              + self             = false
+              + to_port          = 80
+            },
+        ]
+      + name                   = "staging-alb-sg"
+      + name_prefix            = (known after apply)
+      + owner_id               = (known after apply)
+      + region                 = "us-east-1"
+      + revoke_rules_on_delete = false
+      + tags                   = {
+          + "Environment" = "staging"
+          + "ManagedBy"   = "terraform"
+        }
+      + tags_all               = {
+          + "Environment" = "staging"
+          + "ManagedBy"   = "terraform"
+        }
+      + vpc_id                 = "vpc-01d9d81b6fb487c81"
+    }
+
+  # module.cdn.aws_cloudfront_distribution.cdn will be created
+  + resource "aws_cloudfront_distribution" "cdn" {
+      + arn                             = (known after apply)
+      + caller_reference                = (known after apply)
+      + continuous_deployment_policy_id = (known after apply)
+      + default_root_object             = "index.html"
+      + domain_name                     = (known after apply)
+      + enabled                         = true
+      + etag                            = (known after apply)
+      + hosted_zone_id                  = (known after apply)
+      + http_version                    = "http2"
+      + id                              = (known after apply)
+      + in_progress_validation_batches  = (known after apply)
+      + is_ipv6_enabled                 = false
+      + last_modified_time              = (known after apply)
+      + logging_v1_enabled              = (known after apply)
+      + price_class                     = "PriceClass_All"
+      + retain_on_delete                = false
+      + staging                         = false
+      + status                          = (known after apply)
+      + tags                            = {
+          + "Environment" = "staging"
+          + "ManagedBy"   = "terraform"
+        }
+      + tags_all                        = {
+          + "Environment" = "staging"
+          + "ManagedBy"   = "terraform"
+        }
+      + trusted_key_groups              = (known after apply)
+      + trusted_signers                 = (known after apply)
+      + wait_for_deployment             = true
+
+      + default_cache_behavior {
+          + allowed_methods        = [
+              + "GET",
+              + "HEAD",
+            ]
+          + cached_methods         = [
+              + "GET",
+              + "HEAD",
+            ]
+          + compress               = false
+          + default_ttl            = (known after apply)
+          + max_ttl                = (known after apply)
+          + min_ttl                = 0
+          + target_origin_id       = "S3Origin"
+          + trusted_key_groups     = (known after apply)
+          + trusted_signers        = (known after apply)
+          + viewer_protocol_policy = "allow-all"
+
+          + forwarded_values {
+              + headers                 = (known after apply)
+              + query_string            = false
+              + query_string_cache_keys = (known after apply)
+
+              + cookies {
+                  + forward           = "none"
+                  + whitelisted_names = (known after apply)
+                }
+            }
+
+          + grpc_config (known after apply)
+        }
+
+      + origin {
+          + connection_attempts         = 3
+          + connection_timeout          = 10
+          + domain_name                 = (known after apply)
+          + origin_access_control_id    = (known after apply)
+          + origin_id                   = "S3Origin"
+          + response_completion_timeout = (known after apply)
+            # (1 unchanged attribute hidden)
+        }
+
+      + restrictions {
+          + geo_restriction {
+              + locations        = (known after apply)
+              + restriction_type = "none"
+            }
+        }
+
+      + viewer_certificate {
+          + cloudfront_default_certificate = true
+          + minimum_protocol_version       = "TLSv1"
+        }
+    }
+
+  # module.cdn.aws_cloudfront_origin_access_control.cdn_oac will be created
+  + resource "aws_cloudfront_origin_access_control" "cdn_oac" {
+      + arn                               = (known after apply)
+      + description                       = "OAC for S3 static site in staging in staging"
+      + etag                              = (known after apply)
+      + id                                = (known after apply)
+      + name                              = "cdn-oac-staging-staging"
+      + origin_access_control_origin_type = "s3"
+      + signing_behavior                  = "always"
+      + signing_protocol                  = "sigv4"
+    }
+
+  # module.cdn.aws_s3_bucket.static_site will be created
+  + resource "aws_s3_bucket" "static_site" {
+      + acceleration_status         = (known after apply)
+      + acl                         = (known after apply)
+      + arn                         = (known after apply)
+      + bucket                      = "my-static-site-staging"
+      + bucket_domain_name          = (known after apply)
+      + bucket_namespace            = (known after apply)
+      + bucket_prefix               = (known after apply)
+      + bucket_region               = (known after apply)
+      + bucket_regional_domain_name = (known after apply)
+      + force_destroy               = false
+      + hosted_zone_id              = (known after apply)
+      + id                          = (known after apply)
+      + object_lock_enabled         = (known after apply)
+      + policy                      = (known after apply)
+      + region                      = "us-east-1"
+      + request_payer               = (known after apply)
+      + tags                        = {
+          + "Environment" = "staging"
+          + "ManagedBy"   = "terraform"
+        }
+      + tags_all                    = {
+          + "Environment" = "staging"
+          + "ManagedBy"   = "terraform"
+        }
+      + website_domain              = (known after apply)
+      + website_endpoint            = (known after apply)
+
+      + cors_rule (known after apply)
+
+      + grant (known after apply)
+
+      + lifecycle_rule (known after apply)
+
+      + logging (known after apply)
+
+      + object_lock_configuration (known after apply)
+
+      + replication_configuration (known after apply)
+
+      + server_side_encryption_configuration (known after apply)
+
+      + versioning (known after apply)
+
+      + website (known after apply)
+    }
+
+  # module.cdn.aws_s3_bucket_acl.static_site_acl will be created
+  + resource "aws_s3_bucket_acl" "static_site_acl" {
+      + acl    = "private"
+      + bucket = (known after apply)
+      + id     = (known after apply)
+      + region = "us-east-1"
+
+      + access_control_policy (known after apply)
+    }
+
+  # module.cdn.aws_s3_bucket_ownership_controls.static_site_ownership will be created
+  + resource "aws_s3_bucket_ownership_controls" "static_site_ownership" {
+      + bucket = (known after apply)
+      + id     = (known after apply)
+      + region = "us-east-1"
+
+      + rule {
+          + object_ownership = "BucketOwnerPreferred"
+        }
+    }
+
+  # module.cdn.aws_s3_bucket_policy.static_site_policy will be created
+  + resource "aws_s3_bucket_policy" "static_site_policy" {
+      + bucket = (known after apply)
+      + id     = (known after apply)
+      + policy = (known after apply)
+      + region = "us-east-1"
+    }
+
+  # module.ecs.aws_cloudwatch_log_group.ecs will be created
+  + resource "aws_cloudwatch_log_group" "ecs" {
+      + arn                         = (known after apply)
+      + deletion_protection_enabled = (known after apply)
+      + id                          = (known after apply)
+      + log_group_class             = (known after apply)
+      + name                        = "/ecs/staging-ecs"
+      + name_prefix                 = (known after apply)
+      + region                      = "us-east-1"
+      + retention_in_days           = 7
+      + skip_destroy                = false
+      + tags                        = {
+          + "Environment" = "staging"
+          + "ManagedBy"   = "terraform"
+        }
+      + tags_all                    = {
+          + "Environment" = "staging"
+          + "ManagedBy"   = "terraform"
+        }
+    }
+
+  # module.ecs.aws_ecs_cluster.this will be created
+  + resource "aws_ecs_cluster" "this" {
+      + arn      = (known after apply)
+      + id       = (known after apply)
+      + name     = "staging-ecs"
+      + region   = "us-east-1"
+      + tags     = {
+          + "Environment" = "staging"
+          + "ManagedBy"   = "terraform"
+        }
+      + tags_all = {
+          + "Environment" = "staging"
+          + "ManagedBy"   = "terraform"
+        }
+
+      + setting (known after apply)
+    }
+
+  # module.ecs.aws_ecs_service.this will be created
+  + resource "aws_ecs_service" "this" {
+      + arn                                = (known after apply)
+      + availability_zone_rebalancing      = (known after apply)
+      + cluster                            = (known after apply)
+      + deployment_maximum_percent         = 200
+      + deployment_minimum_healthy_percent = 100
+      + desired_count                      = 2
+      + enable_ecs_managed_tags            = false
+      + enable_execute_command             = false
+      + iam_role                           = (known after apply)
+      + id                                 = (known after apply)
+      + launch_type                        = "FARGATE"
+      + name                               = "staging-ecs-service"
+      + platform_version                   = (known after apply)
+      + region                             = "us-east-1"
+      + scheduling_strategy                = "REPLICA"
+      + tags                               = {
+          + "Environment" = "staging"
+          + "ManagedBy"   = "terraform"
+        }
+      + tags_all                           = {
+          + "Environment" = "staging"
+          + "ManagedBy"   = "terraform"
+        }
+      + task_definition                    = (known after apply)
+      + triggers                           = (known after apply)
+      + wait_for_steady_state              = false
+
+      + deployment_configuration (known after apply)
+
+      + load_balancer {
+          + container_name   = "app"
+          + container_port   = 80
+          + target_group_arn = (known after apply)
+            # (1 unchanged attribute hidden)
+        }
+
+      + network_configuration {
+          + assign_public_ip = true
+          + security_groups  = (known after apply)
+          + subnets          = [
+              + "subnet-12345678",
+              + "subnet-876543",
+            ]
+        }
+    }
+
+  # module.ecs.aws_ecs_task_definition.this will be created
+  + resource "aws_ecs_task_definition" "this" {
+      + arn                      = (known after apply)
+      + arn_without_revision     = (known after apply)
+      + container_definitions    = jsonencode(
+            [
+              + {
+                  + essential        = true
+                  + image            = "amazon/amazon-ecs-sample"
+                  + logConfiguration = {
+                      + logDriver = "awslogs"
+                      + options   = {
+                          + awslogs-group         = "/ecs/staging-ecs"
+                          + awslogs-region        = "us-east-1"
+                          + awslogs-stream-prefix = "staging-ecs"
+                        }
+                    }
+                  + name             = "app"
+                  + portMappings     = [
+                      + {
+                          + containerPort = 80
+                          + protocol      = "tcp"
+                        },
+                    ]
+                },
+            ]
+        )
+      + cpu                      = "256"
+      + enable_fault_injection   = (known after apply)
+      + execution_role_arn       = (known after apply)
+      + family                   = "staging-ecs"
+      + id                       = (known after apply)
+      + memory                   = "512"
+      + network_mode             = "awsvpc"
+      + region                   = "us-east-1"
+      + requires_compatibilities = [
+          + "FARGATE",
+        ]
+      + revision                 = (known after apply)
+      + skip_destroy             = false
+      + tags                     = {
+          + "Environment" = "staging"
+          + "ManagedBy"   = "terraform"
+        }
+      + tags_all                 = {
+          + "Environment" = "staging"
+          + "ManagedBy"   = "terraform"
+        }
+      + task_role_arn            = (known after apply)
+      + track_latest             = false
+    }
+
+  # module.ecs.aws_iam_role.task_execution will be created
+  + resource "aws_iam_role" "task_execution" {
+      + arn                   = (known after apply)
+      + assume_role_policy    = jsonencode(
+            {
+              + Statement = [
+                  + {
+                      + Action    = "sts:AssumeRole"
+                      + Effect    = "Allow"
+                      + Principal = {
+                          + Service = "ecs-tasks.amazonaws.com"
+                        }
+                    },
+                ]
+              + Version   = "2012-10-17"
+            }
+        )
+      + create_date           = (known after apply)
+      + force_detach_policies = false
+      + id                    = (known after apply)
+      + managed_policy_arns   = (known after apply)
+      + max_session_duration  = 3600
+      + name                  = "staging-ecs-task-execution"
+      + name_prefix           = (known after apply)
+      + path                  = "/"
+      + tags                  = {
+          + "Environment" = "staging"
+          + "ManagedBy"   = "terraform"
+        }
+      + tags_all              = {
+          + "Environment" = "staging"
+          + "ManagedBy"   = "terraform"
+        }
+      + unique_id             = (known after apply)
+
+      + inline_policy (known after apply)
+    }
+
+  # module.ecs.aws_iam_role.task_role will be created
+  + resource "aws_iam_role" "task_role" {
+      + arn                   = (known after apply)
+      + assume_role_policy    = jsonencode(
+            {
+              + Statement = [
+                  + {
+                      + Action    = "sts:AssumeRole"
+                      + Effect    = "Allow"
+                      + Principal = {
+                          + Service = "ecs-tasks.amazonaws.com"
+                        }
+                    },
+                ]
+              + Version   = "2012-10-17"
+            }
+        )
+      + create_date           = (known after apply)
+      + force_detach_policies = false
+      + id                    = (known after apply)
+      + managed_policy_arns   = (known after apply)
+      + max_session_duration  = 3600
+      + name                  = "staging-ecs-task"
+      + name_prefix           = (known after apply)
+      + path                  = "/"
+      + tags                  = {
+          + "Environment" = "staging"
+          + "ManagedBy"   = "terraform"
+        }
+      + tags_all              = {
+          + "Environment" = "staging"
+          + "ManagedBy"   = "terraform"
+        }
+      + unique_id             = (known after apply)
+
+      + inline_policy (known after apply)
+    }
+
+  # module.ecs.aws_iam_role_policy_attachment.task_execution_policy will be created
+  + resource "aws_iam_role_policy_attachment" "task_execution_policy" {
+      + id         = (known after apply)
+      + policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
+      + role       = "staging-ecs-task-execution"
+    }
+
+  # module.ecs.aws_security_group.ecs will be created
+  + resource "aws_security_group" "ecs" {
+      + arn                    = (known after apply)
+      + description            = "Security group for ECS tasks"
+      + egress                 = [
+          + {
+              + cidr_blocks      = [
+                  + "0.0.0.0/0",
+                ]
+              + from_port        = 0
+              + ipv6_cidr_blocks = []
+              + prefix_list_ids  = []
+              + protocol         = "-1"
+              + security_groups  = []
+              + self             = false
+              + to_port          = 0
+                # (1 unchanged attribute hidden)
+            },
+        ]
+      + id                     = (known after apply)
+      + ingress                = [
+          + {
+              + cidr_blocks      = []
+              + description      = "Allow traffic from ALB"
+              + from_port        = 80
+              + ipv6_cidr_blocks = []
+              + prefix_list_ids  = []
+              + protocol         = "tcp"
+              + security_groups  = (known after apply)
+              + self             = false
+              + to_port          = 80
+            },
+        ]
+      + name                   = "staging-ecs-sg"
+      + name_prefix            = (known after apply)
+      + owner_id               = (known after apply)
+      + region                 = "us-east-1"
+      + revoke_rules_on_delete = false
+      + tags                   = {
+          + "Environment" = "staging"
+          + "ManagedBy"   = "terraform"
+        }
+      + tags_all               = {
+          + "Environment" = "staging"
+          + "ManagedBy"   = "terraform"
+        }
+      + vpc_id                 = "vpc-01d9d81b6fb487c81"
+    }
+
+  # module.iam.data.aws_iam_policy_document.deploy_policy will be read during apply
+  # (config refers to values not yet known)
+ <= data "aws_iam_policy_document" "deploy_policy" {
+      + id            = (known after apply)
+      + json          = (known after apply)
+      + minified_json = (known after apply)
+
+      + statement {
+          + actions   = [
+              + "ecr:BatchCheckLayerAvailability",
+              + "ecr:BatchGetImage",
+              + "ecr:CompleteLayerUpload",
+              + "ecr:CreateRepository",
+              + "ecr:DescribeRepositories",
+              + "ecr:GetDownloadUrlForLayer",
+              + "ecr:GetRepositoryPolicy",
+              + "ecr:InitiateLayerUpload",
+              + "ecr:PutImage",
+              + "ecr:UploadLayerPart",
+            ]
+          + effect    = "Allow"
+          + resources = [
+              + (known after apply),
+            ]
+          + sid       = "GitHubActionsECRAccess"
+        }
+      + statement {
+          + actions   = [
+              + "ecr:GetAuthorizationToken",
+            ]
+          + effect    = "Allow"
+          + resources = [
+              + "*",
+            ]
+          + sid       = "GitHubActionsECRAuthToken"
+        }
+      + statement {
+          + actions   = [
+              + "ecs:DescribeClusters",
+              + "ecs:DescribeServices",
+              + "ecs:DescribeTaskDefinition",
+              + "ecs:DescribeTasks",
+              + "ecs:RegisterTaskDefinition",
+              + "ecs:UpdateService",
+            ]
+          + effect    = "Allow"
+          + resources = [
+              + (known after apply),
+              + (known after apply),
+            ]
+          + sid       = "GitHubActionsECSDeploy"
+        }
+      + statement {
+          + actions   = [
+              + "iam:PassRole",
+            ]
+          + effect    = "Allow"
+          + resources = [
+              + (known after apply),
+              + (known after apply),
+            ]
+          + sid       = "GitHubActionsPassRole"
+
+          + condition {
+              + test     = "StringEquals"
+              + values   = [
+                  + "ecs-tasks.amazonaws.com",
+                ]
+              + variable = "iam:PassedToService"
+            }
+        }
+    }
+
+  # module.iam.data.aws_iam_policy_document.github_oidc_assume_role will be read during apply
+  # (config refers to values not yet known)
+ <= data "aws_iam_policy_document" "github_oidc_assume_role" {
+      + id            = (known after apply)
+      + json          = (known after apply)
+      + minified_json = (known after apply)
+
+      + statement {
+          + actions = [
+              + "sts:AssumeRoleWithWebIdentity",
+            ]
+          + effect  = "Allow"
+
+          + condition {
+              + test     = "StringEquals"
+              + values   = [
+                  + "sts.amazonaws.com",
+                ]
+              + variable = "token.actions.githubusercontent.com:aud"
+            }
+          + condition {
+              + test     = "StringLike"
+              + values   = [
+                  + "repo:Mavros619/devops-home-assessment:environment:staging",
+                ]
+              + variable = "token.actions.githubusercontent.com:sub"
+            }
+
+          + principals {
+              + identifiers = [
+                  + (known after apply),
+                ]
+              + type        = "Federated"
+            }
+        }
+    }
+
+  # module.iam.aws_iam_openid_connect_provider.github will be created
+  + resource "aws_iam_openid_connect_provider" "github" {
+      + arn             = (known after apply)
+      + client_id_list  = [
+          + "sts.amazonaws.com",
+        ]
+      + id              = (known after apply)
+      + tags_all        = (known after apply)
+      + thumbprint_list = [
+          + "2b18947a6a9fc7764fd8b5fb18a863b0c6dac24f",
+        ]
+      + url             = "https://token.actions.githubusercontent.com"
+    }
+
+  # module.iam.aws_iam_role.github_oidc_deploy will be created
+  + resource "aws_iam_role" "github_oidc_deploy" {
+      + arn                   = (known after apply)
+      + assume_role_policy    = (known after apply)
+      + create_date           = (known after apply)
+      + force_detach_policies = false
+      + id                    = (known after apply)
+      + managed_policy_arns   = (known after apply)
+      + max_session_duration  = 3600
+      + name                  = "staging-github-deploy-role"
+      + name_prefix           = (known after apply)
+      + path                  = "/"
+      + tags                  = {
+          + "Environment" = "staging"
+          + "ManagedBy"   = "terraform"
+        }
+      + tags_all              = {
+          + "Environment" = "staging"
+          + "ManagedBy"   = "terraform"
+        }
+      + unique_id             = (known after apply)
+
+      + inline_policy (known after apply)
+    }
+
+  # module.iam.aws_iam_role_policy.github_oidc_deploy_policy will be created
+  + resource "aws_iam_role_policy" "github_oidc_deploy_policy" {
+      + id          = (known after apply)
+      + name        = "staging-github-deploy-role-policy"
+      + name_prefix = (known after apply)
+      + policy      = (known after apply)
+      + role        = (known after apply)
+    }
+
+  # module.repo.aws_ecr_lifecycle_policy.cleanup_policy will be created
+  + resource "aws_ecr_lifecycle_policy" "cleanup_policy" {
+      + id          = (known after apply)
+      + policy      = jsonencode(
+            {
+              + rules = [
+                  + {
+                      + action       = {
+                          + type = "expire"
+                        }
+                      + description  = "Keep last 30 images"
+                      + rulePriority = 1
+                      + selection    = {
+                          + countNumber = 30
+                          + countType   = "imageCountMoreThan"
+                          + tagStatus   = "any"
+                        }
+                    },
+                ]
+            }
+        )
+      + region      = "us-east-1"
+      + registry_id = (known after apply)
+      + repository  = "staging-repo"
+    }
+
+  # module.repo.aws_ecr_repository.repo will be created
+  + resource "aws_ecr_repository" "repo" {
+      + arn                  = (known after apply)
+      + id                   = (known after apply)
+      + image_tag_mutability = "IMMUTABLE"
+      + name                 = "staging-repo"
+      + region               = "us-east-1"
+      + registry_id          = (known after apply)
+      + repository_url       = (known after apply)
+      + tags                 = {
+          + "Environment" = "staging"
+          + "ManagedBy"   = "terraform"
+        }
+      + tags_all             = {
+          + "Environment" = "staging"
+          + "ManagedBy"   = "terraform"
+        }
+
+      + encryption_configuration {
+          + encryption_type = "KMS"
+          + kms_key         = (known after apply)
+        }
+
+      + image_scanning_configuration {
+          + scan_on_push = true
+        }
+    }
+
+Plan: 23 to add, 0 to change, 0 to destroy.
+
+─────────────────────────────────────────────────────────────────────────────
+
+Note: You didn't use the -out option to save this plan, so Terraform can't
+guarantee to take exactly these actions if you run "terraform apply" now.

@@ -20,4 +20,5 @@ variable "default_root_object" {
 
 variable "web_acl_id" {
   type    = string
+  default = null
 }

@@ -27,8 +27,8 @@ module "ecs" {
   alb_target_group_arn  = module.alb.target_group_arn
   alb_security_group_id = module.alb.security_group_id
   env                   = "prod"
-  cpu                   = "256"
-  memory                = "512"
+  cpu                   = "512"
+  memory                = "1024"
   assign_public_ip      = true
   subnets               = ["subnet-12345678", "subnet-876543"]
 }
