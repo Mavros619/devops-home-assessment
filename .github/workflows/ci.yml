@@ -1,0 +1,99 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches: [ "main" ]
+
+env:
+  AWS_REGION: us-east-1
+  ECR_REPOSITORY: my-app
+
+jobs:
+  build-test-scan-push:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout code
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # Setup Node (change depending on your stack)
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      # Install dependencies
+      - name: Install dependencies
+        run: npm ci
+
+      # Run tests
+      - name: Run tests
+        run: npm test
+
+      # Extract version (from package.json or tag)
+      - name: Extract version
+        id: version
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      # Configure AWS credentials
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: arn:aws:iam::<ACCOUNT_ID>:role/github-actions-role
+
+      # Login to ECR
+      - name: Login to ECR
+        uses: aws-actions/amazon-ecr-login@v2
+
+      # Build Docker image
+      - name: Build image
+        run: |
+          docker build -t $ECR_REPOSITORY:${{ github.sha }} .
+
+      # Install Trivy
+      - name: Install Trivy
+        run: |
+          sudo apt-get install -y wget
+          wget https://github.com/aquasecurity/trivy/releases/latest/download/trivy_0.50.1_Linux-64bit.deb
+          sudo dpkg -i trivy_0.50.1_Linux-64bit.deb
+
+      # Scan image for vulnerabilities
+      - name: Run Trivy scan
+        run: |
+          trivy image --exit-code 1 --severity CRITICAL,HIGH \
+            $ECR_REPOSITORY:${{ github.sha }}
+
+      # Tag image (SHA + semver)
+      - name: Tag image
+        run: |
+          docker tag $ECR_REPOSITORY:${{ github.sha }} \
+            $ECR_REPOSITORY:${{ steps.version.outputs.version }}
+
+      # Push images to ECR
+      - name: Push images
+        run: |
+          docker push $ECR_REPOSITORY:${{ github.sha }}
+          docker push $ECR_REPOSITORY:${{ steps.version.outputs.version }}
+
+      # Save image digest for deployments
+      - name: Get image digest
+        id: digest
+        run: |
+          DIGEST=$(docker inspect --format='{{index .RepoDigests 0}}' \
+            $ECR_REPOSITORY:${{ github.sha }})
+          echo "digest=$DIGEST" >> $GITHUB_OUTPUT
+
+      # Upload artifact (used by deploy pipeline)
+      - name: Save build metadata
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-metadata
+          path: |
+            <<EOF
+            image=${{ steps.digest.outputs.digest }}
+            version=${{ steps.version.outputs.version }}
+            EOF

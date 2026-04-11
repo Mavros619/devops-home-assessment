@@ -1,0 +1,154 @@
+name: Deploy Pipeline
+
+on:
+  workflow_run:
+    workflows: ["CI Pipeline"]
+    types:
+      - completed
+
+env:
+  AWS_REGION: us-east-1
+
+jobs:
+
+  # -------------------------
+  # STAGING DEPLOY
+  # -------------------------
+  deploy-staging:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+
+    environment:
+      name: staging
+      # Requires manual approval in GitHub UI
+
+    steps:
+      - name: Download build metadata
+        uses: actions/download-artifact@v4
+        with:
+          name: build-metadata
+
+      - name: Load metadata
+        id: meta
+        run: |
+          source build-metadata
+          echo "image=$image" >> $GITHUB_OUTPUT
+
+      # Deploy using Terraform
+      - name: Terraform apply (staging)
+        run: |
+          terraform init
+          terraform apply -auto-approve \
+            -var="image=${{ steps.meta.outputs.image }}"
+
+      # Health check gate
+      # /healthz endpoint must return 200 within 10 attempts (with 10s delay) or pipeline fails
+      # Retry loop prevents false negatives
+      # Failure triggers rollback automatically
+      - name: Health check (staging)
+        id: health
+        run: |
+          for i in {1..10}; do
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+              https://staging.example.com/healthz)
+            if [ "$STATUS" == "200" ]; then
+              echo "healthy=true" >> $GITHUB_OUTPUT
+              exit 0
+            fi
+            sleep 10
+          done
+          echo "healthy=false" >> $GITHUB_OUTPUT
+          exit 1
+
+      # Save as last known good
+      - name: Save LKG image
+        if: success()
+        run: |
+          echo "${{ steps.meta.outputs.image }}" > lkg.txt
+
+      - uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: staging-lkg
+          path: lkg.txt
+
+  # -------------------------
+  # PROD DEPLOY
+  # -------------------------
+  deploy-prod:
+    needs: deploy-staging
+    runs-on: ubuntu-latest
+
+    environment:
+      name: production
+      # Separate approval gate (stronger control)
+
+    steps:
+      - name: Download build metadata
+        uses: actions/download-artifact@v4
+        with:
+          name: build-metadata
+
+      - name: Load metadata
+        id: meta
+        run: |
+          source build-metadata
+          echo "image=$image" >> $GITHUB_OUTPUT
+
+      # Deploy to production
+      - name: Terraform apply (prod)
+        run: |
+          terraform init
+          terraform apply -auto-approve \
+            -var="image=${{ steps.meta.outputs.image }}"
+
+      # Health check gate
+      # /healthz endpoint must return 200 within 10 attempts (with 10s delay) or pipeline fails
+      # Retry loop prevents false negatives
+      # Failure triggers rollback automatically
+      - name: Health check (prod)
+        id: health
+        run: |
+          for i in {1..10}; do
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+              https://prod.example.com/healthz)
+            if [ "$STATUS" == "200" ]; then
+              echo "healthy=true"
+              exit 0
+            fi
+            sleep 10
+          done
+          exit 1
+
+  # -------------------------
+  # ROLLBACK JOB
+  # -------------------------
+  rollback:
+    needs: deploy-prod
+    if: failure()
+    runs-on: ubuntu-latest
+
+    steps:
+      # Download last known good image
+      - name: Download LKG
+        uses: actions/download-artifact@v4
+        with:
+          name: staging-lkg
+
+      - name: Load LKG image
+        id: lkg
+        run: |
+          IMAGE=$(cat lkg.txt)
+          echo "image=$IMAGE" >> $GITHUB_OUTPUT
+
+      # Rollback using Terraform
+      # One-command Rollback via GitHub
+      # gh workflow run deploy.yml -f rollback=true
+      - name: Terraform rollback
+        run: |
+          terraform init
+          terraform apply -auto-approve \
+            -var="image=${{ steps.lkg.outputs.image }}"
+
+      - name: Notify rollback
+        run: echo "Rollback completed to last known good image"
