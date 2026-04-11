@@ -203,3 +203,44 @@ commands will detect it and remind you to do so if necessary.
 
 Output saved in part2/tf-plan-staging.txt
 
+## Part 3
+
+- Root causes
+
+  - **Root cause 1**: Missing Dockerfile. The error `open Dockerfile: no such file or directory` indicates that the Dockerfile is missing from the workspace. Probably there was no checkout step.
+
+  - **Root cause 2**: Invalid AWS Authentication. The error `The security token included in the request is expired.` indicates that the credentials have exceeded their validity period.
+
+- Dependency error: The error `FATAL image not found in local store` is dependent on Root cause 1. Because `docker build` failed, it didn't create the image in the local storage and Trivy tried to scan an images that never was created. You have to fix it in the correct order so that the image will be build and then run the Trivy scan.
+
+- Corrected workflow section. I added a "Checkout Code" step to download the Dockerfile and a "Configure AWS credentials" step to refresh AWS credentials before login.
+
+```yaml
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Build Docker image
+        run: |
+          docker build -t $ECR_REGISTRY/$ECR_REPO:$IMAGE_TAG .
+
+      - name: Scan image with Trivy
+        run: |
+          trivy image --exit-code 1 --severity HIGH,CRITICAL \
+          $ECR_REGISTRY/$ECR_REPO:$IMAGE_TAG
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Login to ECR
+        run: |
+          aws ecr get-login-password --region $AWS_REGION | docker login \
+          --username AWS --password-stdin $ECR_REGISTRY
+```
