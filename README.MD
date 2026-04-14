@@ -8,6 +8,9 @@
 - **Seperate ECR repository**: I would use seperate ECR repositories for prod and staging for better security or accidental tag overwrite.
 
 # Part 1
+
+Complete code is [here](part1/main.tf)
+
 Screenshot after first running `terraform plan`
 
 ![alt text](images/1st-tf-plan.png)
