@@ -128,8 +128,7 @@ You don't need WAF in staging because it reduces the complexity for internal tes
 The risk that carries is that you might write a code that works in staging but gets blocked by WAF in prodution.
 
 ## Terraform Commands
-
-- Production
+### Production
 
 **terraform init**
 
@@ -169,7 +168,7 @@ commands will detect it and remind you to do so if necessary.
 
 Output saved in [tf-plan-prod.txt](part2/tf-plan-prod.txt)
 
-- Staging
+### Staging
 
 **terraform init**
 
@@ -267,9 +266,11 @@ Shipping logs directly from an application pod to a remote log server is a bad i
   - The security will be more complex because you'll need credentials or certificates to write to the log server for every pod
   - Performance will take a hit because your application has to spend CPU and memory to send the logs. If the log server is slow, it can create a slowdown for your application also.
   - Scaling problems. When you have many pods, you'll have many connecion making the log server to overload.
+
 Log Aggregator can help when:
   - Apps justt write to stdout and devops can handle the rest
   - Prevents log loss during outages
   - Automatically atttaches kubernetes metadata to every log line before it leaves the cluster.
   - Compresses logs
+
 You can skip it in very small setups and non-crittical enviroments
