@@ -1,6 +1,11 @@
 # Key Decisions
 
-
+- **Use of ECS Fargate over EC2**: I chose to use ECS Fargate instead of EC2 because even though EC2 is cheaper, if a sudden spike hits, you have to wait for a new EC2 instance to boot, join the cluster and then start the container. In Faragate, you don't have to provision, configure or scale clusters of virtual machines to run containers making it ideal for production use.
+- **Staging vs Production differences**: Staging omits WAF to reduce complexity and avoid false positives, in production is enabled for extra protction. Staging uses less resources (lower CPU/memory and desired count) than production to lower the cost.
+- **Terraform splited to modules**: Seperated reusable modules for alb, cdn, ecs, iam ecr and waf to reduce the need to write again the same section for staging and production.
+- **ALB + ECS**: I chose this compination because it lets you run and scale containers without managing servers and reducing operational overhead while staying flexible.
+- **Seperate AWS account**: I would use a separate AWS account instead of just an isolated VPC because it provides a hard boundary for security, billing and API quotas. This prevents staging issues like breaches or rate-limit exhaustion from impacting production while the main tradeoff is higher setup complexity compared to the simpler isolation of VPC-level separation.
+- **Seperate ECR repository**: I would use seperate ECR repositories for prod and staging for better security or accidental tag overwrite.
 
 # Part 1
 Screenshot after first running `terraform plan`
@@ -52,7 +57,7 @@ resource "aws_s3_bucket_acl" "static_site_acl" {
 
     bucket = aws_s3_bucket.static_site.id
     acl    = "private"
-}
+}I chose Fargate because of faster scaling and less infrastructure management
 ```
 
 ## Bug 4
@@ -162,7 +167,7 @@ commands will detect it and remind you to do so if necessary.
 
 **terraform plan**
 
-Output saved in part2/tf-plan-prod.txt
+Output saved in [tf-plan-prod.txt](part2/tf-plan-prod.txt)
 
 - Staging
 
@@ -201,7 +206,7 @@ commands will detect it and remind you to do so if necessary.
 
 **terraform plan**
 
-Output saved in part2/tf-plan-staging.txt
+Output saved in [tf-plan-staging.txt](part2/tf-plan-staging.txt)
 
 # Part 3
 
