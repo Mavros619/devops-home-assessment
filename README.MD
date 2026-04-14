@@ -92,13 +92,13 @@ resource "aws_s3_bucket_policy" "static_site_policy" {
 }
 ```
 
-## Part 2
+# Part 2
 
-### EC2 vs ECS Fargate
+## EC2 vs ECS Fargate
 
 I chose to use ECS Fargate instead of EC2 because even though EC2 is cheaper, if a sudden spike hits, you have to wait for a new EC2 instance to boot, join the cluster and then start the container. In Faragate, you don't have to provision, configure or scale clusters of virtual machines to run containers making it ideal for production use.
 
-### Isolation approach
+## Isolation approach
 
 For this implementation, I would use a seperate AWS account because it has a hard boundary for security, billing and api quottas.
 
@@ -108,7 +108,7 @@ For this implementation, I would use a seperate AWS account because it has a har
 
 The tradoff is the lower initial setup with isolated VPC. Also there is a network layer protection because resources of one VPC cannot communicate with resources of another VPC.
 
-### Reduced task sizing for ECS Fargate
+## Reduced task sizing for ECS Fargate
 
 I reduced the below values:
 
@@ -116,13 +116,13 @@ I reduced the below values:
 - `cpu` from 512 to 256. **Reduced cpu because in production we always add more to guarantee stability**
 - `memory` from 1024 to 512. **Reduced memory because in production we always add more to guarantee stability**
 
-### WAF not required in staging
+## WAF not required in staging
 
 You don't need WAF in staging because it reduces the complexity for internal testing as WAFs are nottoriouus for "False Positives". For example, it might block a developers's legitimate API call or a manual QA test because the payload looks "suspicious". Also is more cost efficient if you remove WAF in staging bringing the cost down.
 
 The risk that carries is that you might write a code that works in staging but gets blocked by WAF in prodution.
 
-### Terraform Commands
+## Terraform Commands
 
 - Production
 
@@ -203,7 +203,7 @@ commands will detect it and remind you to do so if necessary.
 
 Output saved in part2/tf-plan-staging.txt
 
-## Part 3
+# Part 3
 
 - Root causes
 
@@ -244,3 +244,27 @@ jobs:
           aws ecr get-login-password --region $AWS_REGION | docker login \
           --username AWS --password-stdin $ECR_REGISTRY
 ```
+
+# Technical Questions
+
+- **Q1**:
+Internaly the url work but externally it doesn't. This must be because the ingress controller doesn't work, probably missing, blocked or not redirecting correctly.
+- **Q3**:
+The rollback strategy is
+  - Remove the `NOT NULL` constrain. TThis makes sure that the old code doesn't crash when it ingores the new column during `INSERT` operations.
+  - Execute kubernetes rollback. This will revert the deployment to the previous stable version.
+  - Monitor pod health to very that the older pods are reaching a `Ready` state.
+  - Check if any "null" values are created during the rollback and correct them.
+  - Once the application is stable, drop the column.
+- **Q4**:
+Shipping logs directly from an application pod to a remote log server is a bad idea because:
+  - If the log server goes down, you lose he logs.
+  - The security will be more complex because you'll need credentials or certificates to write to the log server for every pod
+  - Performance will take a hit because your application has to spend CPU and memory to send the logs. If the log server is slow, it can create a slowdown for your application also.
+  - Scaling problems. When you have many pods, you'll have many connecion making the log server to overload.
+Log Aggregator can help when:
+  - Apps justt write to stdout and devops can handle the rest
+  - Prevents log loss during outages
+  - Automatically atttaches kubernetes metadata to every log line before it leaves the cluster.
+  - Compresses logs
+You can skip it in very small setups and non-crittical enviroments
