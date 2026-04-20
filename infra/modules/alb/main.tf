@@ -53,10 +53,11 @@ resource "aws_lb" "this" {
 }
 
 resource "aws_lb_target_group" "this" {
-  name     = "${var.name}-tg"
-  port     = var.http_port
-  protocol = var.protocol
-  vpc_id   = data.aws_vpc.default.id
+  name        = "${var.name}-tg"
+  port        = var.http_port
+  protocol    = var.protocol
+  vpc_id      = data.aws_vpc.default.id
+  target_type = "ip"
 
   health_check {
     path                = "/"

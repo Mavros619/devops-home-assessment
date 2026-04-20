@@ -23,10 +23,13 @@ jobs:
       # Requires manual approval in GitHub UI
 
     steps:
+      # Download artifact from the CI workflow run that triggered this deploy
       - name: Download build metadata
         uses: actions/download-artifact@v4
         with:
           name: build-metadata
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          run-id: ${{ github.event.workflow_run.id }}
 
       - name: Load metadata
         id: meta
@@ -34,8 +37,20 @@ jobs:
           source build-metadata
           echo "image=$image" >> $GITHUB_OUTPUT
 
+      # Checkout repo for Terraform code
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # Configure AWS credentials via OIDC
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
+
       # Deploy using Terraform
       - name: Terraform apply (staging)
+        working-directory: infra/envs/staging
         run: |
           terraform init
           terraform apply -auto-approve \
@@ -84,10 +99,13 @@ jobs:
       # Separate approval gate (stronger control)
 
     steps:
+      # Download artifact from the CI workflow run
       - name: Download build metadata
         uses: actions/download-artifact@v4
         with:
           name: build-metadata
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          run-id: ${{ github.event.workflow_run.id }}
 
       - name: Load metadata
         id: meta
@@ -95,8 +113,20 @@ jobs:
           source build-metadata
           echo "image=$image" >> $GITHUB_OUTPUT
 
+      # Checkout repo for Terraform code
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # Configure AWS credentials via OIDC
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
+
       # Deploy to production
       - name: Terraform apply (prod)
+        working-directory: infra/envs/prod
         run: |
           terraform init
           terraform apply -auto-approve \
@@ -141,10 +171,22 @@ jobs:
           IMAGE=$(cat lkg.txt)
           echo "image=$IMAGE" >> $GITHUB_OUTPUT
 
+      # Checkout repo for Terraform code
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # Configure AWS credentials via OIDC
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
+
       # Rollback using Terraform
       # One-command Rollback via GitHub
       # gh workflow run deploy.yml -f rollback=true
       - name: Terraform rollback
+        working-directory: infra/envs/prod
         run: |
           terraform init
           terraform apply -auto-approve \

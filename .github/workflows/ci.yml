@@ -47,12 +47,15 @@ jobs:
 
       # Login to ECR
       - name: Login to ECR
+        id: login
         uses: aws-actions/amazon-ecr-login@v2
 
-      # Build Docker image
+      # Build Docker image with full ECR registry prefix
       - name: Build image
+        env:
+          ECR_REGISTRY: ${{ steps.login.outputs.registry }}
         run: |
-          docker build -t $ECR_REPOSITORY:${{ github.sha }} .
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:${{ github.sha }} .
 
       # Install Trivy
       - name: Install Trivy
@@ -63,37 +66,46 @@ jobs:
 
       # Scan image for vulnerabilities
       - name: Run Trivy scan
+        env:
+          ECR_REGISTRY: ${{ steps.login.outputs.registry }}
         run: |
           trivy image --exit-code 1 --severity CRITICAL,HIGH \
-            $ECR_REPOSITORY:${{ github.sha }}
+            $ECR_REGISTRY/$ECR_REPOSITORY:${{ github.sha }}
 
       # Tag image (SHA + semver)
       - name: Tag image
+        env:
+          ECR_REGISTRY: ${{ steps.login.outputs.registry }}
         run: |
-          docker tag $ECR_REPOSITORY:${{ github.sha }} \
-            $ECR_REPOSITORY:${{ steps.version.outputs.version }}
+          docker tag $ECR_REGISTRY/$ECR_REPOSITORY:${{ github.sha }} \
+            $ECR_REGISTRY/$ECR_REPOSITORY:${{ steps.version.outputs.version }}
 
       # Push images to ECR
       - name: Push images
+        env:
+          ECR_REGISTRY: ${{ steps.login.outputs.registry }}
         run: |
-          docker push $ECR_REPOSITORY:${{ github.sha }}
-          docker push $ECR_REPOSITORY:${{ steps.version.outputs.version }}
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:${{ github.sha }}
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:${{ steps.version.outputs.version }}
 
       # Save image digest for deployments
       - name: Get image digest
         id: digest
+        env:
+          ECR_REGISTRY: ${{ steps.login.outputs.registry }}
         run: |
           DIGEST=$(docker inspect --format='{{index .RepoDigests 0}}' \
-            $ECR_REPOSITORY:${{ github.sha }})
+            $ECR_REGISTRY/$ECR_REPOSITORY:${{ github.sha }})
           echo "digest=$DIGEST" >> $GITHUB_OUTPUT
 
-      # Upload artifact (used by deploy pipeline)
-      - name: Save build metadata
+      # Write build metadata to file, then upload as artifact
+      - name: Write build metadata
+        run: |
+          echo "image=${{ steps.digest.outputs.digest }}" > build-metadata
+          echo "version=${{ steps.version.outputs.version }}" >> build-metadata
+
+      - name: Upload build metadata
         uses: actions/upload-artifact@v4
         with:
           name: build-metadata
-          path: |
-            <<EOF
-            image=${{ steps.digest.outputs.digest }}
-            version=${{ steps.version.outputs.version }}
-            EOF
+          path: build-metadata

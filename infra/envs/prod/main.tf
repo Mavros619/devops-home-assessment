@@ -1,7 +1,15 @@
+terraform {
+  backend "s3" {
+    bucket         = "devops-assessment-tfstate-prod"
+    key            = "prod/terraform.tfstate"
+    region         = "us-east-1"
+    dynamodb_table = "terraform-lock-prod"
+    encrypt        = true
+  }
+}
+
 provider "aws" {
-  region     = "us-east-1"
-  access_key = "my-access-key"
-  secret_key = "my-secret-key"
+  region = "us-east-1"
 }
 
 module "repo" {
